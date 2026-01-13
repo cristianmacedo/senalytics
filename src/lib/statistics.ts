@@ -223,6 +223,30 @@ export function calculateConsecutiveStats(draws: DrawData[]): {
 }
 
 /**
+ * Calculate winners by state (UF)
+ */
+export function calculateWinnersByState(
+  draws: DrawData[]
+): Record<string, { winners: number; prizes: number }> {
+  const byState: Record<string, { winners: number; prizes: number }> = {};
+
+  for (const draw of draws) {
+    if (!draw.ganhadoresPorUF) continue;
+
+    for (const [uf, count] of Object.entries(draw.ganhadoresPorUF)) {
+      if (!byState[uf]) {
+        byState[uf] = { winners: 0, prizes: 0 };
+      }
+      byState[uf].winners += count;
+      // Estimate prize per winner for this draw
+      byState[uf].prizes += count * (draw.premios[0] / (draw.ganhadores[0] || 1));
+    }
+  }
+
+  return byState;
+}
+
+/**
  * Theoretical probability calculations
  */
 export const probability = {

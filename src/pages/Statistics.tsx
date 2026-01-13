@@ -7,8 +7,10 @@ import {
   getOverdueNumbers,
   calculateOddEvenStats,
   calculateConsecutiveStats,
+  calculateWinnersByState,
   probability,
 } from "@/lib/statistics";
+import { BrazilMap } from "@/components/BrazilMap";
 import { formatDateBR } from "@/api/megasena";
 import { Card, StatCard, Section } from "@/components/ui/Card";
 import { LotteryBall } from "@/components/ui/LotteryBall";
@@ -36,6 +38,7 @@ export function Statistics() {
     const overdueNumbers = getOverdueNumbers(frequencies, 10);
     const oddEven = calculateOddEvenStats(historicalData.draws);
     const consecutive = calculateConsecutiveStats(historicalData.draws);
+    const winnersByState = calculateWinnersByState(historicalData.draws);
 
     // Prepare chart data
     const frequencyChartData = frequencies
@@ -47,6 +50,12 @@ export function Statistics() {
         isCold: coldNumbers.some((c) => c.number === f.number),
       }));
 
+    // Get max winners for color scale
+    const maxWinners = Math.max(
+      ...Object.values(winnersByState).map((s) => s.winners),
+      1
+    );
+
     return {
       frequencies,
       hotNumbers,
@@ -55,6 +64,8 @@ export function Statistics() {
       oddEven,
       consecutive,
       frequencyChartData,
+      winnersByState,
+      maxWinners,
       totalDraws: historicalData.draws.length,
       dateRange: {
         first: historicalData.draws[0]?.data,
@@ -89,7 +100,11 @@ export function Statistics() {
           <StatCard
             title="Total de Concursos"
             value={stats.totalDraws.toLocaleString("pt-BR")}
-            subtitle={`Desde ${stats.dateRange.first ? formatDateBR(stats.dateRange.first) : "1996"}`}
+            subtitle={`Desde ${
+              stats.dateRange.first
+                ? formatDateBR(stats.dateRange.first)
+                : "1996"
+            }`}
           />
           <StatCard
             title="Combinações Possíveis"
@@ -98,12 +113,16 @@ export function Statistics() {
           />
           <StatCard
             title="Chance de Sena"
-            value={`1 em ${Math.round(probability.hitOdds(6)).toLocaleString("pt-BR")}`}
+            value={`1 em ${Math.round(probability.hitOdds(6)).toLocaleString(
+              "pt-BR"
+            )}`}
             subtitle="Com 6 números"
           />
           <StatCard
             title="Chance de Quina"
-            value={`1 em ${Math.round(probability.hitOdds(5)).toLocaleString("pt-BR")}`}
+            value={`1 em ${Math.round(probability.hitOdds(5)).toLocaleString(
+              "pt-BR"
+            )}`}
             subtitle="Com 6 números"
           />
         </div>
@@ -138,8 +157,8 @@ export function Statistics() {
                       entry.isHot
                         ? "#209869"
                         : entry.isCold
-                          ? "#ef4444"
-                          : "#94a3b8"
+                        ? "#ef4444"
+                        : "#94a3b8"
                     }
                   />
                 ))}
@@ -180,7 +199,9 @@ export function Statistics() {
                       <div
                         className="h-full bg-mega-green rounded-full transition-all"
                         style={{
-                          width: `${(num.count / stats.hotNumbers[0].count) * 100}%`,
+                          width: `${
+                            (num.count / stats.hotNumbers[0].count) * 100
+                          }%`,
                         }}
                       />
                     </div>
@@ -209,7 +230,9 @@ export function Statistics() {
                       <div
                         className="h-full bg-slate-400 rounded-full transition-all"
                         style={{
-                          width: `${(num.count / stats.hotNumbers[0].count) * 100}%`,
+                          width: `${
+                            (num.count / stats.hotNumbers[0].count) * 100
+                          }%`,
                         }}
                       />
                     </div>
@@ -242,7 +265,9 @@ export function Statistics() {
                       <div
                         className="h-full bg-amber-400 rounded-full transition-all"
                         style={{
-                          width: `${(num.gap / stats.overdueNumbers[0].gap) * 100}%`,
+                          width: `${
+                            (num.gap / stats.overdueNumbers[0].gap) * 100
+                          }%`,
                         }}
                       />
                     </div>
@@ -333,6 +358,55 @@ export function Statistics() {
         </div>
       </Section>
 
+      {/* Winners by State */}
+      <Section
+        title="Ganhadores por Estado"
+        subtitle="Distribuição geográfica das Senas"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <BrazilMap
+              data={stats.winnersByState}
+              maxWinners={stats.maxWinners}
+            />
+          </Card>
+          <Card>
+            <h3 className="font-bold text-slate-900 mb-4">
+              Ranking por Estado
+            </h3>
+            <div className="space-y-2 max-h-[500px] overflow-y-auto">
+              {Object.entries(stats.winnersByState)
+                .sort(([, a], [, b]) => b.winners - a.winners)
+                .map(([uf, data], index) => (
+                  <div
+                    key={uf}
+                    className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                          index < 3
+                            ? "bg-mega-green text-white"
+                            : "bg-slate-200 text-slate-600"
+                        }`}
+                      >
+                        {index + 1}
+                      </span>
+                      <span className="font-medium text-slate-900">{uf}</span>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-mega-green">
+                        {data.winners.toLocaleString("pt-BR")}
+                      </p>
+                      <p className="text-xs text-slate-500">ganhadores</p>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </Card>
+        </div>
+      </Section>
+
       {/* Probability Table */}
       <Section title="Probabilidades" subtitle="Chances teóricas de acerto">
         <Card>
@@ -362,7 +436,9 @@ export function Statistics() {
                     >
                       <td className="py-3 px-4">
                         <span
-                          className={`font-medium ${hits >= 4 ? "text-mega-green" : "text-slate-600"}`}
+                          className={`font-medium ${
+                            hits >= 4 ? "text-mega-green" : "text-slate-600"
+                          }`}
                         >
                           {hits} números
                         </span>
