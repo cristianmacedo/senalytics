@@ -1,70 +1,29 @@
 import { useMemo } from "react";
-import { useLatestDraw, useHistoricalData } from "@/hooks/useMegaSena";
-import { formatBRL } from "@/api/megasena";
+import { useHistoricalData } from "@/hooks/useMegaSena";
+import { formatBRL, formatDateBR } from "@/api/megasena";
 import { Card, StatCard, Section } from "@/components/ui/Card";
 import { DrawResult } from "@/components/ui/LotteryBall";
 import { Button } from "@/components/ui/Button";
 import { LoadingPage } from "@/components/ui/Loading";
 import { Link } from "react-router-dom";
-import type { MegaSenaResult } from "@/types/megasena";
 
 export function Home() {
-  const { data: latestDraw, isLoading: isLoadingLatest } = useLatestDraw();
-  const { data: historicalData, isLoading: isLoadingHistorical } =
-    useHistoricalData();
+  const { data: historicalData, isLoading } = useHistoricalData();
 
-  // Fallback to latest from historical data if API fails
-  const fallbackDraw = useMemo(() => {
+  // Get the latest draw from historical data
+  const latestDraw = useMemo(() => {
     if (!historicalData?.draws?.length) return null;
 
-    const latest = historicalData.draws.reduce((max, draw) =>
+    return historicalData.draws.reduce((max, draw) =>
       draw.numero > max.numero ? draw : max
     );
-
-    // Convert to MegaSenaResult-like structure for display
-    return {
-      numero: latest.numero,
-      dataApuracao: new Date(latest.data).toLocaleDateString("pt-BR"),
-      dataProximoConcurso: "",
-      acumulado: latest.acumulado,
-      listaDezenas: latest.dezenas.map((d) => d.toString().padStart(2, "0")),
-      listaRateioPremio: [
-        {
-          descricaoFaixa: "6 acertos",
-          faixa: 1,
-          numeroDeGanhadores: latest.ganhadores[0],
-          valorPremio: latest.premios[0],
-        },
-        {
-          descricaoFaixa: "5 acertos",
-          faixa: 2,
-          numeroDeGanhadores: latest.ganhadores[1],
-          valorPremio: latest.premios[1],
-        },
-        {
-          descricaoFaixa: "4 acertos",
-          faixa: 3,
-          numeroDeGanhadores: latest.ganhadores[2],
-          valorPremio: latest.premios[2],
-        },
-      ],
-      listaMunicipioUFGanhadores:
-        [] as MegaSenaResult["listaMunicipioUFGanhadores"],
-      numeroConcursoProximo: latest.numero + 1,
-      valorEstimadoProximoConcurso: 0,
-      isFallback: true,
-    } satisfies Partial<MegaSenaResult> & { isFallback: boolean };
   }, [historicalData]);
-
-  const isLoading = isLoadingLatest && isLoadingHistorical;
-  const displayDraw = latestDraw || fallbackDraw;
-  const isUsingFallback = !latestDraw && fallbackDraw;
 
   if (isLoading) {
     return <LoadingPage />;
   }
 
-  if (!displayDraw) {
+  if (!latestDraw) {
     return (
       <div className="text-center py-12">
         <p className="text-red-500">Erro ao carregar dados</p>
@@ -75,19 +34,10 @@ export function Home() {
     );
   }
 
-  const prize = displayDraw.listaRateioPremio[0];
-  const winners = prize?.numeroDeGanhadores ?? 0;
+  const winners = latestDraw.ganhadores[0];
 
   return (
     <div className="space-y-8">
-      {/* Fallback Notice */}
-      {isUsingFallback && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-800 text-sm">
-          <strong>Aviso:</strong> Não foi possível conectar à API da Caixa.
-          Exibindo último resultado disponível do histórico local.
-        </div>
-      )}
-
       {/* Hero Section - Latest Draw */}
       <Card
         variant="elevated"
@@ -100,22 +50,22 @@ export function Home() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
               <p className="text-white/80 text-sm font-medium uppercase tracking-wide">
-                {isUsingFallback
-                  ? "Último Concurso (Cache)"
-                  : "Último Concurso"}
+                Último Concurso
               </p>
               <h1 className="text-4xl font-bold mt-1">
-                Concurso {displayDraw.numero}
+                Concurso {latestDraw.numero}
               </h1>
-              <p className="text-white/80 mt-2">{displayDraw.dataApuracao}</p>
+              <p className="text-white/80 mt-2">
+                {formatDateBR(latestDraw.data)}
+              </p>
             </div>
 
             <div className="text-right">
               <p className="text-white/80 text-sm font-medium uppercase tracking-wide">
-                {displayDraw.acumulado ? "Acumulou!" : "Prêmio Principal"}
+                {latestDraw.acumulado ? "Acumulou!" : "Prêmio Principal"}
               </p>
               <p className="text-3xl md:text-4xl font-bold mt-1">
-                {formatBRL(prize?.valorPremio ?? 0)}
+                {formatBRL(latestDraw.premios[0])}
               </p>
               <p className="text-white/80 mt-2">
                 {winners === 0
@@ -130,77 +80,58 @@ export function Home() {
             <p className="text-white/80 text-sm font-medium mb-4 uppercase tracking-wide">
               Números Sorteados
             </p>
-            <DrawResult
-              numbers={displayDraw.listaDezenas.map((d) => parseInt(d, 10))}
-              size="lg"
-            />
+            <DrawResult numbers={latestDraw.dezenas} size="lg" />
           </div>
         </div>
       </Card>
 
       {/* Quick Stats */}
-      {!isUsingFallback && (
-        <Section
-          title="Resumo do Concurso"
-          subtitle="Detalhes do último sorteio"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard
-              title="Próximo Concurso"
-              value={displayDraw.numeroConcursoProximo}
-              subtitle={displayDraw.dataProximoConcurso}
-            />
-            <StatCard
-              title="Estimativa Próximo"
-              value={formatBRL(displayDraw.valorEstimadoProximoConcurso)}
-              subtitle={displayDraw.acumulado ? "Acumulado!" : "Prêmio inicial"}
-              trend={displayDraw.acumulado ? "up" : "neutral"}
-            />
-            <StatCard
-              title="Ganhadores (5 acertos)"
-              value={displayDraw.listaRateioPremio[1]?.numeroDeGanhadores ?? 0}
-              subtitle={formatBRL(
-                displayDraw.listaRateioPremio[1]?.valorPremio ?? 0
-              )}
-            />
-            <StatCard
-              title="Ganhadores (4 acertos)"
-              value={displayDraw.listaRateioPremio[2]?.numeroDeGanhadores ?? 0}
-              subtitle={formatBRL(
-                displayDraw.listaRateioPremio[2]?.valorPremio ?? 0
-              )}
-            />
-          </div>
-        </Section>
-      )}
+      <Section title="Resumo do Concurso" subtitle="Detalhes do último sorteio">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            title="Ganhadores (6 acertos)"
+            value={latestDraw.ganhadores[0]}
+            subtitle={formatBRL(latestDraw.premios[0])}
+            trend={latestDraw.ganhadores[0] > 0 ? "up" : "neutral"}
+          />
+          <StatCard
+            title="Ganhadores (5 acertos)"
+            value={latestDraw.ganhadores[1]}
+            subtitle={formatBRL(latestDraw.premios[1])}
+          />
+          <StatCard
+            title="Ganhadores (4 acertos)"
+            value={latestDraw.ganhadores[2]}
+            subtitle={formatBRL(latestDraw.premios[2])}
+          />
+          <StatCard
+            title="Arrecadação"
+            value={formatBRL(latestDraw.arrecadacao)}
+            subtitle={latestDraw.acumulado ? "Acumulou!" : ""}
+            trend={latestDraw.acumulado ? "up" : "neutral"}
+          />
+        </div>
+      </Section>
 
-      {/* Winners by Location */}
-      {!isUsingFallback &&
-        displayDraw.listaMunicipioUFGanhadores.length > 0 && (
-          <Section title="Ganhadores por Local">
+      {/* Winners by State */}
+      {latestDraw.ganhadoresPorUF &&
+        Object.keys(latestDraw.ganhadoresPorUF).length > 0 && (
+          <Section title="Ganhadores por Estado">
             <Card>
-              <div className="divide-y divide-slate-100">
-                {displayDraw.listaMunicipioUFGanhadores.map((winner, index) => (
-                  <div
-                    key={index}
-                    className="py-3 flex items-center justify-between"
-                  >
-                    <div>
-                      <p className="font-medium text-slate-900">
-                        {winner.municipio}
-                      </p>
-                      <p className="text-sm text-slate-500">
-                        {winner.uf === "--" ? "Internet" : winner.uf}
-                      </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {Object.entries(latestDraw.ganhadoresPorUF)
+                  .sort(([, a], [, b]) => b - a)
+                  .map(([uf, count]) => (
+                    <div
+                      key={uf}
+                      className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
+                    >
+                      <span className="font-bold text-slate-900">{uf}</span>
+                      <span className="text-mega-green font-medium">
+                        {count} {count === 1 ? "aposta" : "apostas"}
+                      </span>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold text-mega-green">
-                        {winner.ganhadores}{" "}
-                        {winner.ganhadores === 1 ? "aposta" : "apostas"}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </Card>
           </Section>

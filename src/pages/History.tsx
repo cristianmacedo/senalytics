@@ -1,10 +1,10 @@
 import { useState, useMemo } from "react";
-import { useHistoricalData, useDraw } from "@/hooks/useMegaSena";
+import { useHistoricalData } from "@/hooks/useMegaSena";
 import { formatBRL, formatDateBR } from "@/api/megasena";
 import { Card, Section } from "@/components/ui/Card";
 import { DrawResult } from "@/components/ui/LotteryBall";
 import { Button } from "@/components/ui/Button";
-import { LoadingPage, Loading } from "@/components/ui/Loading";
+import { LoadingPage } from "@/components/ui/Loading";
 
 const ITEMS_PER_PAGE = 20;
 
@@ -13,11 +13,6 @@ export function History() {
   const [page, setPage] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDraw, setSelectedDraw] = useState<number | null>(null);
-
-  // For fetching detailed draw info
-  const { data: drawDetails, isLoading: isLoadingDetails } = useDraw(
-    selectedDraw ?? 0
-  );
 
   const filteredDraws = useMemo(() => {
     if (!historicalData?.draws) return [];
@@ -46,6 +41,12 @@ export function History() {
   }, [filteredDraws, page]);
 
   const totalPages = Math.ceil(filteredDraws.length / ITEMS_PER_PAGE);
+
+  // Get selected draw details from historical data
+  const selectedDrawData = useMemo(() => {
+    if (!selectedDraw || !historicalData?.draws) return null;
+    return historicalData.draws.find((d) => d.numero === selectedDraw);
+  }, [selectedDraw, historicalData]);
 
   if (isLoading) {
     return <LoadingPage />;
@@ -134,57 +135,78 @@ export function History() {
               </div>
 
               {/* Expanded Details */}
-              {selectedDraw === draw.numero && (
+              {selectedDraw === draw.numero && selectedDrawData && (
                 <div className="mt-4 pt-4 border-t border-slate-100">
-                  {isLoadingDetails ? (
-                    <Loading size="sm" text="Carregando detalhes..." />
-                  ) : drawDetails ? (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <p className="text-xs text-slate-500 uppercase mb-2">
-                          Premiação
-                        </p>
-                        <div className="space-y-1">
-                          {drawDetails.listaRateioPremio.map((premio) => (
-                            <div
-                              key={premio.faixa}
-                              className="flex justify-between text-sm"
-                            >
-                              <span className="text-slate-600">
-                                {premio.descricaoFaixa}
-                              </span>
-                              <span className="font-medium">
-                                {premio.numeroDeGanhadores > 0
-                                  ? `${premio.numeroDeGanhadores}x ${formatBRL(premio.valorPremio)}`
-                                  : "—"}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <p className="text-xs text-slate-500 uppercase mb-2">
-                          Local do Sorteio
-                        </p>
-                        <p className="text-sm text-slate-900">
-                          {drawDetails.localSorteio}
-                        </p>
-                        <p className="text-sm text-slate-600">
-                          {drawDetails.nomeMunicipioUFSorteio}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="text-xs text-slate-500 uppercase mb-2">
-                          Arrecadação
-                        </p>
-                        <p className="text-sm font-medium text-slate-900">
-                          {formatBRL(drawDetails.valorArrecadado)}
-                        </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-xs text-slate-500 uppercase mb-2">
+                        Premiação
+                      </p>
+                      <div className="space-y-1">
+                        {[
+                          { label: "6 acertos (Sena)", index: 0 },
+                          { label: "5 acertos (Quina)", index: 1 },
+                          { label: "4 acertos (Quadra)", index: 2 },
+                        ].map(({ label, index }) => (
+                          <div
+                            key={label}
+                            className="flex justify-between text-sm"
+                          >
+                            <span className="text-slate-600">{label}</span>
+                            <span className="font-medium">
+                              {selectedDrawData.ganhadores[index] > 0
+                                ? `${selectedDrawData.ganhadores[index]}x ${formatBRL(selectedDrawData.premios[index])}`
+                                : "—"}
+                            </span>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  ) : null}
+
+                    <div>
+                      <p className="text-xs text-slate-500 uppercase mb-2">
+                        Arrecadação
+                      </p>
+                      <p className="text-sm font-medium text-slate-900">
+                        {formatBRL(selectedDrawData.arrecadacao)}
+                      </p>
+                      {selectedDrawData.acumuladoProximo > 0 && (
+                        <>
+                          <p className="text-xs text-slate-500 uppercase mb-2 mt-4">
+                            Acumulou para próximo
+                          </p>
+                          <p className="text-sm font-medium text-amber-600">
+                            {formatBRL(selectedDrawData.acumuladoProximo)}
+                          </p>
+                        </>
+                      )}
+                    </div>
+
+                    {selectedDrawData.ganhadoresPorUF &&
+                      Object.keys(selectedDrawData.ganhadoresPorUF).length >
+                        0 && (
+                        <div>
+                          <p className="text-xs text-slate-500 uppercase mb-2">
+                            Ganhadores por Estado
+                          </p>
+                          <div className="space-y-1">
+                            {Object.entries(selectedDrawData.ganhadoresPorUF)
+                              .sort(([, a], [, b]) => b - a)
+                              .map(([uf, count]) => (
+                                <div
+                                  key={uf}
+                                  className="flex justify-between text-sm"
+                                >
+                                  <span className="text-slate-600">{uf}</span>
+                                  <span className="font-medium text-mega-green">
+                                    {count}
+                                  </span>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+                  </div>
                 </div>
               )}
             </Card>
