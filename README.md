@@ -29,6 +29,20 @@ Solution:
 
 This gives instant historical stats (no API calls) while keeping latest draw fresh.
 
+### Automated Updates
+
+A GitHub Action (`.github/workflows/update-history.yml`) automatically syncs historical data:
+
+- **Schedule:** Runs at **23:00 UTC** on **Wed/Sat** (after Tue/Thu/Sat draws)
+- **Draws:** Mega Sena draws happen Tue/Thu/Sat at ~20:00 BRT (23:00 UTC)
+- **Commit:** Auto-commits and triggers Vercel redeploy (only if new draws found)
+
+The commit message is configured in the workflow file:
+
+```yaml
+git commit -m "chore: update mega sena history"
+```
+
 ### API Proxy Caching
 
 - **Latest draw** (`/api/megasena/latest`): 5 min cache
