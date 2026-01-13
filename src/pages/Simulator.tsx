@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useHistoricalData } from "@/hooks/useMegaSena";
 import {
   generateRandomDraw,
@@ -11,14 +11,103 @@ import { Card, Section } from "@/components/ui/Card";
 import { LotteryBallGrid, DrawResult } from "@/components/ui/LotteryBall";
 import { Button } from "@/components/ui/Button";
 import { LoadingPage } from "@/components/ui/Loading";
+import type { DrawData } from "@/types/megasena";
 
 const ALL_NUMBERS = Array.from({ length: 60 }, (_, i) => i + 1);
+
+interface HuntResult {
+  attempts: number;
+  numbers: number[];
+  matchedDraw: DrawData;
+  timeMs: number;
+}
 
 export function Simulator() {
   const { data: historicalData, isLoading } = useHistoricalData();
   const [selectedNumbers, setSelectedNumbers] = useState<number[]>([]);
   const [simulationResult, setSimulationResult] =
     useState<SimulationResult | null>(null);
+
+  // Hunt for Sena state
+  const [isHunting, setIsHunting] = useState(false);
+  const [huntAttempts, setHuntAttempts] = useState(0);
+  const [huntCurrentNumbers, setHuntCurrentNumbers] = useState<number[]>([]);
+  const [huntResult, setHuntResult] = useState<HuntResult | null>(null);
+  const huntRef = useRef<{ running: boolean; startTime: number }>({
+    running: false,
+    startTime: 0,
+  });
+
+  // Pre-build Set of historical draws for O(1) lookup
+  const historicalSet = useMemo(() => {
+    if (!historicalData?.draws) return new Map<string, DrawData>();
+    const map = new Map<string, DrawData>();
+    for (const draw of historicalData.draws) {
+      const key = [...draw.dezenas].sort((a, b) => a - b).join("-");
+      map.set(key, draw);
+    }
+    return map;
+  }, [historicalData]);
+
+  // Hunt logic
+  const startHunt = useCallback(() => {
+    if (!historicalData?.draws) return;
+
+    setIsHunting(true);
+    setHuntResult(null);
+    setHuntAttempts(0);
+    setHuntCurrentNumbers([]); // Reset numbers
+    huntRef.current = { running: true, startTime: performance.now() };
+
+    const tick = () => {
+      if (!huntRef.current.running) return;
+
+      const ITERATIONS_PER_FRAME = 500;
+      let localAttempts = 0;
+
+      for (let i = 0; i < ITERATIONS_PER_FRAME; i++) {
+        localAttempts++;
+        const numbers = generateRandomDraw();
+        const key = numbers.join("-");
+
+        if (historicalSet.has(key)) {
+          // Found a match!
+          const matchedDraw = historicalSet.get(key)!;
+          const timeMs = performance.now() - huntRef.current.startTime;
+
+          huntRef.current.running = false;
+          setIsHunting(false);
+          setHuntCurrentNumbers(numbers);
+          setHuntResult({
+            attempts: huntAttempts + localAttempts,
+            numbers,
+            matchedDraw,
+            timeMs,
+          });
+          return;
+        }
+      }
+
+      setHuntAttempts((prev) => prev + localAttempts);
+      setHuntCurrentNumbers(generateRandomDraw()); // Show random numbers for visual effect
+
+      requestAnimationFrame(tick);
+    };
+
+    requestAnimationFrame(tick);
+  }, [historicalData, historicalSet, huntAttempts]);
+
+  const stopHunt = useCallback(() => {
+    huntRef.current.running = false;
+    setIsHunting(false);
+  }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      huntRef.current.running = false;
+    };
+  }, []);
 
   const validation = useMemo(() => {
     if (selectedNumbers.length === 0) return { valid: false, errors: [] };
@@ -134,7 +223,9 @@ export function Simulator() {
       {simulationResult && (
         <Section
           title="Resultado da Simulação"
-          subtitle={`Seus números testados contra ${simulationResult.totalDraws.toLocaleString("pt-BR")} concursos`}
+          subtitle={`Seus números testados contra ${simulationResult.totalDraws.toLocaleString(
+            "pt-BR"
+          )} concursos`}
         >
           {/* Summary Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -242,7 +333,9 @@ export function Simulator() {
                     <div
                       className={`h-full ${color} rounded-full transition-all`}
                       style={{
-                        width: `${(value / simulationResult.totalDraws) * 100}%`,
+                        width: `${
+                          (value / simulationResult.totalDraws) * 100
+                        }%`,
                       }}
                     />
                   </div>
@@ -322,8 +415,8 @@ export function Simulator() {
                             matches === 6
                               ? "text-amber-600"
                               : matches === 5
-                                ? "text-mega-green"
-                                : "text-caixa-blue";
+                              ? "text-mega-green"
+                              : "text-caixa-blue";
                           return (
                             <p
                               className={`text-sm font-medium mt-1 ${colorClass}`}
@@ -342,6 +435,138 @@ export function Simulator() {
           )}
         </Section>
       )}
+
+      {/* Hunt for Sena Feature */}
+      <Section
+        title="Caça à Sena"
+        subtitle="Quantas tentativas até acertar um sorteio histórico?"
+      >
+        <Card className="overflow-hidden">
+          <div className="space-y-6">
+            {/* Description */}
+            <div className="text-center text-slate-600">
+              <p>
+                O computador vai sortear números aleatórios até encontrar uma
+                combinação que já foi sorteada na Mega Sena.
+              </p>
+              <p className="text-sm mt-2 text-slate-500">
+                Em média, são necessárias ~17.000 tentativas para encontrar um
+                sorteio histórico.
+              </p>
+            </div>
+
+            {/* Current Numbers Display */}
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6">
+              <div className="flex justify-center min-h-[64px]">
+                {huntCurrentNumbers.length === 6 ? (
+                  <DrawResult
+                    numbers={huntCurrentNumbers}
+                    size="lg"
+                    animate={isHunting}
+                  />
+                ) : (
+                  <div className="flex gap-2">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className={`w-16 h-16 rounded-full border-2 border-dashed flex items-center justify-center ${
+                          isHunting
+                            ? "border-caixa-blue text-caixa-blue animate-pulse"
+                            : "border-slate-300 text-slate-400"
+                        }`}
+                      >
+                        ?
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Attempts Counter */}
+            <div className="text-center">
+              <p className="text-sm text-slate-500 mb-1">Tentativas</p>
+              <p
+                className={`text-5xl font-bold tabular-nums transition-colors ${
+                  isHunting
+                    ? "text-caixa-blue"
+                    : huntResult
+                    ? "text-mega-green"
+                    : "text-slate-300"
+                }`}
+              >
+                {(huntResult?.attempts ?? huntAttempts).toLocaleString("pt-BR")}
+              </p>
+            </div>
+
+            {/* Action Button */}
+            <div className="flex justify-center">
+              {!isHunting ? (
+                <Button
+                  onClick={startHunt}
+                  variant="primary"
+                  disabled={!historicalData?.draws}
+                >
+                  🎯 Iniciar Caça à Sena
+                </Button>
+              ) : (
+                <Button onClick={stopHunt} variant="outline">
+                  ⏹️ Parar
+                </Button>
+              )}
+            </div>
+
+            {/* Result */}
+            {huntResult && (
+              <div className="bg-gradient-to-br from-mega-green to-mega-green-dark rounded-xl p-6 text-white">
+                <div className="text-center mb-4">
+                  <p className="text-lg font-bold">🎉 Sena Encontrada!</p>
+                  <p className="text-white/80 text-sm">
+                    em {huntResult.attempts.toLocaleString("pt-BR")} tentativas
+                    ({(huntResult.timeMs / 1000).toFixed(2)}s)
+                  </p>
+                </div>
+
+                <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div>
+                      <p className="font-bold text-xl">
+                        Concurso {huntResult.matchedDraw.numero}
+                      </p>
+                      <p className="text-white/80">
+                        {formatDateBR(huntResult.matchedDraw.data)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-white/80 text-sm">Prêmio da Sena</p>
+                      <p className="font-bold text-xl">
+                        {formatBRL(huntResult.matchedDraw.premios[0])}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Fun fact */}
+                  <div className="mt-4 pt-4 border-t border-white/20 text-center">
+                    <p className="text-sm text-white/80">
+                      Se você jogasse 2 apostas por semana, levaria
+                      aproximadamente
+                    </p>
+                    <p className="text-2xl font-bold mt-1">
+                      {Math.round(huntResult.attempts / 2 / 52).toLocaleString(
+                        "pt-BR"
+                      )}{" "}
+                      anos
+                    </p>
+                    <p className="text-sm text-white/80">
+                      para encontrar esta Sena
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
+      </Section>
     </div>
   );
 }
