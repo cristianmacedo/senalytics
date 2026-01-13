@@ -79,13 +79,20 @@ export function BrazilMap({ data, maxWinners }: BrazilMapProps) {
 
   const getColor = (winners: number): string => {
     if (winners === 0) return "#1e293b"; // slate-800 (dark background)
-    const intensity = Math.min(winners / maxWinners, 1);
-    // Gradient from dark green to bright green
-    if (intensity < 0.2) return "#14532d"; // green-900
-    if (intensity < 0.4) return "#166534"; // green-800
-    if (intensity < 0.6) return "#15803d"; // green-700
-    if (intensity < 0.8) return "#16a34a"; // green-600
-    return "#22c55e"; // green-500
+    // Logarithmic scale for better granularity
+    // log(1) = 0, log(maxWinners) = max
+    const logMax = Math.log(maxWinners + 1);
+    const logValue = Math.log(winners + 1);
+    const intensity = logValue / logMax;
+
+    // More granular gradient
+    if (intensity < 0.15) return "#14532d"; // green-900 (1-2 winners)
+    if (intensity < 0.3) return "#166534"; // green-800 (3-5 winners)
+    if (intensity < 0.45) return "#15803d"; // green-700 (6-15 winners)
+    if (intensity < 0.6) return "#16a34a"; // green-600 (16-40 winners)
+    if (intensity < 0.75) return "#22c55e"; // green-500 (41-100 winners)
+    if (intensity < 0.9) return "#4ade80"; // green-400 (101-200 winners)
+    return "#86efac"; // green-300 (200+ winners)
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -149,7 +156,7 @@ export function BrazilMap({ data, maxWinners }: BrazilMapProps) {
 
       {/* Legend */}
       <div className="mt-4 flex items-center justify-center gap-2">
-        <span className="text-xs text-slate-400">Menos</span>
+        <span className="text-xs text-slate-400">0</span>
         <div className="flex rounded overflow-hidden">
           {[
             "#1e293b",
@@ -158,15 +165,17 @@ export function BrazilMap({ data, maxWinners }: BrazilMapProps) {
             "#15803d",
             "#16a34a",
             "#22c55e",
+            "#4ade80",
+            "#86efac",
           ].map((color) => (
             <div
               key={color}
-              className="w-6 h-4"
+              className="w-5 h-4"
               style={{ backgroundColor: color }}
             />
           ))}
         </div>
-        <span className="text-xs text-slate-400">Mais</span>
+        <span className="text-xs text-slate-400">{maxWinners}</span>
       </div>
     </div>
   );
