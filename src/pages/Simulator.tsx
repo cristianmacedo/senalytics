@@ -538,9 +538,17 @@ export function Simulator() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-white/80 text-sm">Prêmio da Sena</p>
+                      <p className="text-white/80 text-sm">
+                        {huntResult.matchedDraw.premios[0] > 0
+                          ? "Prêmio da Sena"
+                          : "Acumulou para"}
+                      </p>
                       <p className="font-bold text-xl">
-                        {formatBRL(huntResult.matchedDraw.premios[0])}
+                        {formatBRL(
+                          huntResult.matchedDraw.premios[0] > 0
+                            ? huntResult.matchedDraw.premios[0]
+                            : huntResult.matchedDraw.acumuladoProximo
+                        )}
                       </p>
                     </div>
                   </div>
