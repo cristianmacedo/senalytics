@@ -23,9 +23,7 @@ export function Layout({ children }: LayoutProps) {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-mega-green flex items-center justify-center font-bold text-lg shadow-md">
-                S
-              </div>
+              <img src="/favicon.svg" alt="Senalytics" className="w-10 h-10" />
               <span className="text-xl font-bold hidden sm:block">Senalytics</span>
             </Link>
             
