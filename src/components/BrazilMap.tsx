@@ -151,15 +151,20 @@ export function BrazilMap({ data, maxWinners }: BrazilMapProps) {
       <div className="mt-4 flex items-center justify-center gap-2">
         <span className="text-xs text-slate-400">Menos</span>
         <div className="flex rounded overflow-hidden">
-          {["#1e293b", "#14532d", "#166534", "#15803d", "#16a34a", "#22c55e"].map(
-            (color) => (
-              <div
-                key={color}
-                className="w-6 h-4"
-                style={{ backgroundColor: color }}
-              />
-            )
-          )}
+          {[
+            "#1e293b",
+            "#14532d",
+            "#166534",
+            "#15803d",
+            "#16a34a",
+            "#22c55e",
+          ].map((color) => (
+            <div
+              key={color}
+              className="w-6 h-4"
+              style={{ backgroundColor: color }}
+            />
+          ))}
         </div>
         <span className="text-xs text-slate-400">Mais</span>
       </div>
