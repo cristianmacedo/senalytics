@@ -26,103 +26,97 @@ export interface PrizeTier {
 export interface MegaSenaResult {
   /** Whether the prize accumulated (no winners) */
   acumulado: boolean;
-  
+
   /** Draw date (DD/MM/YYYY format) */
   dataApuracao: string;
-  
+
   /** Next draw date (DD/MM/YYYY format) */
   dataProximoConcurso: string;
-  
+
   /** Numbers drawn in order of draw */
   dezenasSorteadasOrdemSorteio: string[];
-  
+
   /** Whether to show winners by city detail */
   exibirDetalhamentoPorCidade: boolean;
-  
+
   /** Internal ID (usually null) */
   id: string | null;
-  
+
   /** Special draw indicator (0=normal, 1=Mega da Virada, 2=other special) */
   indicadorConcursoEspecial: number;
 
-  /** Total amount collected in bets */
-  valorArrecadado: number;
-
-  /** Accumulated prize for next draw */
-  valorAcumuladoProximoConcurso: number;
-  
   /** Numbers drawn in ascending order */
   listaDezenas: string[];
-  
+
   /** Second draw numbers (for special draws, usually null) */
   listaDezenasSegundoSorteio: string[] | null;
-  
+
   /** List of winner locations */
   listaMunicipioUFGanhadores: WinnerLocation[];
-  
+
   /** Prize breakdown by tier */
   listaRateioPremio: PrizeTier[];
-  
+
   /** Sports team results (for specific games, usually null) */
   listaResultadoEquipeEsportiva: unknown[] | null;
-  
+
   /** Draw location name */
   localSorteio: string;
-  
+
   /** Draw city and state */
   nomeMunicipioUFSorteio: string;
-  
+
   /** Heart team month of luck (legacy field with garbage data) */
   nomeTimeCoracaoMesSorte: string;
-  
+
   /** Draw number (concurso) */
   numero: number;
-  
+
   /** Previous draw number */
   numeroConcursoAnterior: number;
-  
+
   /** Final draw number for 0-5 accumulation */
   numeroConcursoFinal_0_5: number;
-  
+
   /** Next draw number */
   numeroConcursoProximo: number;
-  
+
   /** Game type number */
   numeroJogo: number;
-  
+
   /** Observation text */
   observacao: string;
-  
+
   /** Contingency prize (usually null) */
   premiacaoContingencia: unknown | null;
-  
+
   /** Game type identifier */
-  tipoJogo: 'MEGA_SENA';
-  
+  tipoJogo: "MEGA_SENA";
+
   /** Publication type */
   tipoPublicacao: number;
-  
+
   /** Whether this is the latest draw */
   ultimoConcurso: boolean;
-  
+
   /** Total amount collected */
   valorArrecadado: number;
-  
+
   /** Accumulated value for 0-5 special */
   valorAcumuladoConcurso_0_5: number;
-  
+
   /** Accumulated value for special draw */
   valorAcumuladoConcursoEspecial: number;
-  
+
   /** Accumulated value for next draw */
   valorAcumuladoProximoConcurso: number;
-  
+
   /** Estimated prize for next draw */
   valorEstimadoProximoConcurso: number;
-  
+
   /** Reserve fund balance */
   valorSaldoReservaGarantidora: number;
-  
+
   /** Total prize for first tier */
   valorTotalPremioFaixaUm: number;
 }
@@ -168,10 +162,10 @@ export interface DrawData {
 export interface HistoricalData {
   /** Last update timestamp */
   updatedAt: string;
-  
+
   /** Total number of draws */
   totalDraws: number;
-  
+
   /** All draws */
   draws: DrawData[];
 }
@@ -193,19 +187,19 @@ export interface NumberFrequency {
 export interface StatsSummary {
   /** Most frequent numbers */
   hotNumbers: NumberFrequency[];
-  
+
   /** Least frequent numbers */
   coldNumbers: NumberFrequency[];
-  
+
   /** Numbers with longest current gap */
   overdueNumbers: NumberFrequency[];
-  
+
   /** Average gap between draws for each number */
   averageGaps: Record<number, number>;
-  
+
   /** Total draws analyzed */
   totalDraws: number;
-  
+
   /** Date range */
   dateRange: {
     first: string;

@@ -1,20 +1,20 @@
-import { ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import type { ReactNode } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 const navItems = [
-  { path: '/', label: 'Início', icon: '🏠' },
-  { path: '/statistics', label: 'Estatísticas', icon: '📊' },
-  { path: '/simulator', label: 'Simulador', icon: '🎲' },
-  { path: '/history', label: 'Histórico', icon: '📜' },
+  { path: "/", label: "Início", icon: "🏠" },
+  { path: "/statistics", label: "Estatísticas", icon: "📊" },
+  { path: "/simulator", label: "Simulador", icon: "🎲" },
+  { path: "/history", label: "Histórico", icon: "📜" },
 ];
 
 export function Layout({ children }: LayoutProps) {
   const location = useLocation();
-  
+
   return (
     <div className="min-h-screen bg-surface">
       {/* Header */}
@@ -24,9 +24,11 @@ export function Layout({ children }: LayoutProps) {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3">
               <img src="/favicon.svg" alt="Senalytics" className="w-10 h-10" />
-              <span className="text-xl font-bold hidden sm:block">Senalytics</span>
+              <span className="text-xl font-bold hidden sm:block">
+                Senalytics
+              </span>
             </Link>
-            
+
             {/* Navigation */}
             <nav className="flex items-center gap-1">
               {navItems.map((item) => {
@@ -38,9 +40,10 @@ export function Layout({ children }: LayoutProps) {
                     className={`
                       px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200
                       flex items-center gap-2
-                      ${isActive 
-                        ? 'bg-white/20 text-white' 
-                        : 'text-white/80 hover:bg-white/10 hover:text-white'
+                      ${
+                        isActive
+                          ? "bg-white/20 text-white"
+                          : "text-white/80 hover:bg-white/10 hover:text-white"
                       }
                     `}
                   >
@@ -53,12 +56,12 @@ export function Layout({ children }: LayoutProps) {
           </div>
         </div>
       </header>
-      
+
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
-      
+
       {/* Footer */}
       <footer className="bg-slate-900 text-slate-400 py-8 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

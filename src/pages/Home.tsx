@@ -9,11 +9,7 @@ import { Link } from "react-router-dom";
 import type { MegaSenaResult } from "@/types/megasena";
 
 export function Home() {
-  const {
-    data: latestDraw,
-    isLoading: isLoadingLatest,
-    error: latestError,
-  } = useLatestDraw();
+  const { data: latestDraw, isLoading: isLoadingLatest } = useLatestDraw();
   const { data: historicalData, isLoading: isLoadingHistorical } =
     useHistoricalData();
 
@@ -37,26 +33,27 @@ export function Home() {
           descricaoFaixa: "6 acertos",
           faixa: 1,
           numeroDeGanhadores: latest.ganhadores[0],
-          valorPremio: latest.premios?.[0] ?? (latest as unknown as { premioSena?: number }).premioSena ?? 0,
+          valorPremio: latest.premios[0],
         },
         {
           descricaoFaixa: "5 acertos",
           faixa: 2,
           numeroDeGanhadores: latest.ganhadores[1],
-          valorPremio: latest.premios?.[1] ?? 0,
+          valorPremio: latest.premios[1],
         },
         {
           descricaoFaixa: "4 acertos",
           faixa: 3,
           numeroDeGanhadores: latest.ganhadores[2],
-          valorPremio: latest.premios?.[2] ?? 0,
+          valorPremio: latest.premios[2],
         },
       ],
-      listaMunicipioUFGanhadores: [],
+      listaMunicipioUFGanhadores:
+        [] as MegaSenaResult["listaMunicipioUFGanhadores"],
       numeroConcursoProximo: latest.numero + 1,
       valorEstimadoProximoConcurso: 0,
-      isFallback: true, // Flag to indicate this is fallback data
-    } as MegaSenaResult & { isFallback?: boolean };
+      isFallback: true,
+    } satisfies Partial<MegaSenaResult> & { isFallback: boolean };
   }, [historicalData]);
 
   const isLoading = isLoadingLatest && isLoadingHistorical;
@@ -103,7 +100,9 @@ export function Home() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
               <p className="text-white/80 text-sm font-medium uppercase tracking-wide">
-                {isUsingFallback ? "Último Concurso (Cache)" : "Último Concurso"}
+                {isUsingFallback
+                  ? "Último Concurso (Cache)"
+                  : "Último Concurso"}
               </p>
               <h1 className="text-4xl font-bold mt-1">
                 Concurso {displayDraw.numero}

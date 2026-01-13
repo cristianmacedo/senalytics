@@ -1,32 +1,35 @@
-import { ReactNode, ButtonHTMLAttributes } from 'react';
+import type { ReactNode, ButtonHTMLAttributes } from "react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "primary" | "secondary" | "outline" | "ghost";
+  size?: "sm" | "md" | "lg";
   loading?: boolean;
 }
 
 const variantClasses = {
-  primary: 'bg-gradient-to-r from-mega-green to-mega-green-dark text-white hover:from-mega-green-dark hover:to-mega-green shadow-lg shadow-mega-green/25',
-  secondary: 'bg-gradient-to-r from-caixa-blue to-caixa-blue-dark text-white hover:from-caixa-blue-dark hover:to-caixa-blue shadow-lg shadow-caixa-blue/25',
-  outline: 'border-2 border-mega-green text-mega-green hover:bg-mega-green hover:text-white',
-  ghost: 'text-slate-600 hover:bg-slate-100',
+  primary:
+    "bg-gradient-to-r from-mega-green to-mega-green-dark text-white hover:from-mega-green-dark hover:to-mega-green shadow-lg shadow-mega-green/25",
+  secondary:
+    "bg-gradient-to-r from-caixa-blue to-caixa-blue-dark text-white hover:from-caixa-blue-dark hover:to-caixa-blue shadow-lg shadow-caixa-blue/25",
+  outline:
+    "border-2 border-mega-green text-mega-green hover:bg-mega-green hover:text-white",
+  ghost: "text-slate-600 hover:bg-slate-100",
 };
 
 const sizeClasses = {
-  sm: 'px-3 py-1.5 text-sm',
-  md: 'px-5 py-2.5 text-base',
-  lg: 'px-8 py-3.5 text-lg',
+  sm: "px-3 py-1.5 text-sm",
+  md: "px-5 py-2.5 text-base",
+  lg: "px-8 py-3.5 text-lg",
 };
 
 export function Button({
   children,
-  variant = 'primary',
-  size = 'md',
+  variant = "primary",
+  size = "md",
   loading = false,
   disabled,
-  className = '',
+  className = "",
   ...props
 }: ButtonProps) {
   return (

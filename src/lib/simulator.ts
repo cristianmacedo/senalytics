@@ -1,4 +1,4 @@
-import type { DrawData } from '@/types/megasena';
+import type { DrawData } from "@/types/megasena";
 
 const TOTAL_NUMBERS = 60;
 const NUMBERS_PER_DRAW = 6;
@@ -8,11 +8,11 @@ const NUMBERS_PER_DRAW = 6;
  */
 export function generateRandomDraw(): number[] {
   const numbers: Set<number> = new Set();
-  
+
   while (numbers.size < NUMBERS_PER_DRAW) {
     numbers.add(Math.floor(Math.random() * TOTAL_NUMBERS) + 1);
   }
-  
+
   return Array.from(numbers).sort((a, b) => a - b);
 }
 
@@ -28,7 +28,7 @@ export function generateMultipleDraws(count: number): number[][] {
  */
 export function countMatches(draw1: number[], draw2: number[]): number {
   const set2 = new Set(draw2);
-  return draw1.filter(n => set2.has(n)).length;
+  return draw1.filter((n) => set2.has(n)).length;
 }
 
 /**
@@ -47,27 +47,40 @@ export function simulateAgainstHistory(
     matches1: 0,
     matches0: 0,
   };
-  
+
   const matchDetails: { draw: DrawData; matches: number }[] = [];
-  
+
   for (const draw of historicalDraws) {
     const matches = countMatches(userNumbers, draw.dezenas);
-    
+
     switch (matches) {
-      case 6: results.matches6++; break;
-      case 5: results.matches5++; break;
-      case 4: results.matches4++; break;
-      case 3: results.matches3++; break;
-      case 2: results.matches2++; break;
-      case 1: results.matches1++; break;
-      default: results.matches0++;
+      case 6:
+        results.matches6++;
+        break;
+      case 5:
+        results.matches5++;
+        break;
+      case 4:
+        results.matches4++;
+        break;
+      case 3:
+        results.matches3++;
+        break;
+      case 2:
+        results.matches2++;
+        break;
+      case 1:
+        results.matches1++;
+        break;
+      default:
+        results.matches0++;
     }
-    
+
     if (matches >= 4) {
       matchDetails.push({ draw, matches });
     }
   }
-  
+
   return {
     userNumbers,
     totalDraws: historicalDraws.length,
@@ -111,22 +124,35 @@ export function monteCarloSimulation(
     matches1: 0,
     matches0: 0,
   };
-  
+
   for (let i = 0; i < iterations; i++) {
     const randomDraw = generateRandomDraw();
     const matches = countMatches(randomDraw, targetDraw);
-    
+
     switch (matches) {
-      case 6: results.matches6++; break;
-      case 5: results.matches5++; break;
-      case 4: results.matches4++; break;
-      case 3: results.matches3++; break;
-      case 2: results.matches2++; break;
-      case 1: results.matches1++; break;
-      default: results.matches0++;
+      case 6:
+        results.matches6++;
+        break;
+      case 5:
+        results.matches5++;
+        break;
+      case 4:
+        results.matches4++;
+        break;
+      case 3:
+        results.matches3++;
+        break;
+      case 2:
+        results.matches2++;
+        break;
+      case 1:
+        results.matches1++;
+        break;
+      default:
+        results.matches0++;
     }
   }
-  
+
   return {
     iterations,
     results,
@@ -170,22 +196,22 @@ export interface MonteCarloResult {
  */
 export function generateWeightedDraw(
   frequencies: Map<number, number>,
-  bias: 'hot' | 'cold' = 'hot'
+  bias: "hot" | "cold" = "hot"
 ): number[] {
   const entries = Array.from(frequencies.entries());
-  
+
   // Invert weights for cold numbers
   const weights = entries.map(([num, freq]) => ({
     number: num,
-    weight: bias === 'hot' ? freq : 1 / (freq + 1),
+    weight: bias === "hot" ? freq : 1 / (freq + 1),
   }));
-  
+
   const totalWeight = weights.reduce((sum, w) => sum + w.weight, 0);
   const selected: Set<number> = new Set();
-  
+
   while (selected.size < NUMBERS_PER_DRAW) {
     let random = Math.random() * totalWeight;
-    
+
     for (const { number, weight } of weights) {
       random -= weight;
       if (random <= 0 && !selected.has(number)) {
@@ -194,7 +220,7 @@ export function generateWeightedDraw(
       }
     }
   }
-  
+
   return Array.from(selected).sort((a, b) => a - b);
 }
 
@@ -206,23 +232,23 @@ export function validateNumbers(numbers: number[]): {
   errors: string[];
 } {
   const errors: string[] = [];
-  
+
   if (numbers.length !== NUMBERS_PER_DRAW) {
     errors.push(`Deve selecionar exatamente ${NUMBERS_PER_DRAW} números`);
   }
-  
+
   const uniqueNumbers = new Set(numbers);
   if (uniqueNumbers.size !== numbers.length) {
-    errors.push('Números devem ser únicos');
+    errors.push("Números devem ser únicos");
   }
-  
+
   for (const num of numbers) {
     if (num < 1 || num > TOTAL_NUMBERS) {
       errors.push(`Números devem estar entre 1 e ${TOTAL_NUMBERS}`);
       break;
     }
   }
-  
+
   return {
     valid: errors.length === 0,
     errors,
