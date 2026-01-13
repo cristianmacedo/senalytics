@@ -2,6 +2,7 @@
  * Script to fetch Mega Sena historical data
  * - Checks existing data first and only fetches missing concursos
  * - Uses gentle rate limiting to avoid API blocks
+ * - Saves progress on Ctrl+C or termination
  *
  * Run with: npm run fetch-history
  */
@@ -21,7 +22,12 @@ const DATA_PATH = join(
 
 // Gentle rate limiting settings
 const BATCH_SIZE = 5;
-const DELAY_BETWEEN_BATCHES_MS = 1000;
+const DELAY_BETWEEN_BATCHES_MS = 2000;
+
+// State for graceful shutdown
+let existingDraws: DrawData[] = [];
+let newDraws: DrawData[] = [];
+let isShuttingDown = false;
 
 interface MegaSenaResult {
   numero: number;
@@ -165,14 +171,58 @@ function saveData(data: HistoricalData): void {
   writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
 }
 
+function saveProgress(): boolean {
+  if (newDraws.length === 0) {
+    return false;
+  }
+
+  const allDraws = [...existingDraws, ...newDraws].sort(
+    (a, b) => a.numero - b.numero
+  );
+
+  const uniqueDraws = allDraws.filter(
+    (draw, index, self) =>
+      index === self.findIndex((d) => d.numero === draw.numero)
+  );
+
+  const updatedData: HistoricalData = {
+    updatedAt: new Date().toISOString(),
+    totalDraws: uniqueDraws.length,
+    draws: uniqueDraws,
+  };
+
+  saveData(updatedData);
+  return true;
+}
+
+function handleShutdown(signal: string): void {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+
+  console.log(`\n\n🛑 Received ${signal}, saving progress...`);
+
+  if (saveProgress()) {
+    console.log(`✅ Saved ${newDraws.length} new draws before exit`);
+    console.log("   Run the script again to continue fetching.");
+  } else {
+    console.log("   No new draws to save.");
+  }
+
+  process.exit(0);
+}
+
+// Register signal handlers
+process.on("SIGINT", () => handleShutdown("SIGINT"));
+process.on("SIGTERM", () => handleShutdown("SIGTERM"));
+
 async function main() {
   console.log("🎰 Mega Sena History Fetcher\n");
+  console.log("   (Press Ctrl+C to stop and save progress)\n");
 
   // Load existing data
   const existingData = loadExistingData();
-  const existingNumbers = new Set(
-    existingData?.draws.map((d) => d.numero) ?? []
-  );
+  existingDraws = existingData?.draws ?? [];
+  const existingNumbers = new Set(existingDraws.map((d) => d.numero));
 
   if (existingData) {
     console.log(`📂 Found existing data: ${existingData.draws.length} draws`);
@@ -226,7 +276,7 @@ async function main() {
     `   (${BATCH_SIZE} at a time, ${DELAY_BETWEEN_BATCHES_MS / 1000}s delay)\n`
   );
 
-  const newDraws: DrawData[] = [];
+  newDraws = [];
   let rateLimited = false;
   let consecutiveErrors = 0;
 
@@ -234,11 +284,9 @@ async function main() {
     const batch = missing.slice(i, i + BATCH_SIZE);
     const results = await Promise.all(batch.map(fetchDraw));
 
-    let batchSuccesses = 0;
     for (const result of results) {
       if (result) {
         newDraws.push(toDrawData(result));
-        batchSuccesses++;
         consecutiveErrors = 0;
       } else {
         consecutiveErrors++;
@@ -272,32 +320,12 @@ async function main() {
     return;
   }
 
-  // Merge with existing data
-  const allDraws = [...(existingData?.draws ?? []), ...newDraws].sort(
-    (a, b) => a.numero - b.numero
-  );
+  // Save all fetched data
+  saveProgress();
 
-  // Remove duplicates (just in case)
-  const uniqueDraws = allDraws.filter(
-    (draw, index, self) =>
-      index === self.findIndex((d) => d.numero === draw.numero)
-  );
-
-  const updatedData: HistoricalData = {
-    updatedAt: new Date().toISOString(),
-    totalDraws: uniqueDraws.length,
-    draws: uniqueDraws,
-  };
-
-  saveData(updatedData);
-
+  const totalDraws = existingDraws.length + newDraws.length;
   console.log(`✅ Added ${newDraws.length} new draws`);
-  console.log(`   Total draws: ${uniqueDraws.length}`);
-  console.log(
-    `   File size: ${(JSON.stringify(updatedData).length / 1024 / 1024).toFixed(
-      2
-    )} MB`
-  );
+  console.log(`   Total draws: ${totalDraws}`);
 
   // Check what's still missing
   const stillMissing = missing.length - newDraws.length;
