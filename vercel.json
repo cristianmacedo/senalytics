@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/megasena/:concurso*",
+      "destination": "/api/megasena/[concurso]"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

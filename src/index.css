@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+/* CAIXA Font */
+@font-face {
+  font-family: 'CAIXA Std';
+  src: url('/font/CAIXAStd-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'CAIXA Std';
+  src: url('/font/CAIXAStd-LightItalic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'CAIXA Std';
+  src: url('/font/CAIXAStd-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'CAIXA Std';
+  src: url('/font/CAIXAStd-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'CAIXA Std';
+  src: url('/font/CAIXAStd-Book.ttf') format('truetype');
+  font-weight: 450;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'CAIXA Std';
+  src: url('/font/CAIXAStd-BookItalic.ttf') format('truetype');
+  font-weight: 450;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'CAIXA Std';
+  src: url('/font/CAIXAStd-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'CAIXA Std';
+  src: url('/font/CAIXAStd-SemiBoldItalic.ttf') format('truetype');
+  font-weight: 600;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'CAIXA Std';
+  src: url('/font/CAIXAStd-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'CAIXA Std';
+  src: url('/font/CAIXAStd-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'CAIXA Std';
+  src: url('/font/CAIXAStd-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'CAIXA Std';
+  src: url('/font/CAIXAStd-ExtraBoldItalic.ttf') format('truetype');
+  font-weight: 800;
+  font-style: italic;
+}
+
+/* Theme Variables */
+@theme {
+  --font-caixa: 'CAIXA Std', system-ui, sans-serif;
+  
+  /* Caixa/Mega Sena Brand Colors */
+  --color-caixa-blue: #0066b3;
+  --color-caixa-blue-dark: #004d86;
+  --color-caixa-blue-light: #3385c2;
+  
+  --color-mega-green: #209869;
+  --color-mega-green-dark: #18724f;
+  --color-mega-green-light: #4db38a;
+  
+  /* Neutral palette */
+  --color-surface: #f8fafc;
+  --color-surface-dark: #0f172a;
+  --color-card: #ffffff;
+  --color-card-dark: #1e293b;
+  
+  /* Lottery ball colors */
+  --color-ball-gold: #fbbf24;
+  --color-ball-silver: #94a3b8;
+}
+
+/* Base styles */
+body {
+  font-family: var(--font-caixa);
+  background-color: var(--color-surface);
+  color: #1e293b;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Lottery ball animation */
+@keyframes ball-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.ball-animate {
+  animation: ball-bounce 0.6s ease-in-out;
+}
