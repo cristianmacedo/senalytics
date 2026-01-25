@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-01-23T02:42:54.487Z",
-  "totalDraws": 2963,
+  "updatedAt": "2026-01-25T02:50:53.090Z",
+  "totalDraws": 2964,
   "draws": [
     {
       "numero": 1,
@@ -79041,6 +79041,32 @@
       ],
       "arrecadacao": 54719220,
       "acumuladoProximo": 54349585.6
+    },
+    {
+      "numero": 2964,
+      "data": "2026-01-24",
+      "dezenas": [
+        3,
+        9,
+        15,
+        17,
+        30,
+        60
+      ],
+      "acumulado": true,
+      "especial": 1,
+      "ganhadores": [
+        0,
+        121,
+        7163
+      ],
+      "premios": [
+        0,
+        22818.11,
+        635.36
+      ],
+      "arrecadacao": 69286512,
+      "acumuladoProximo": 81606840.66
     }
   ]
 }
