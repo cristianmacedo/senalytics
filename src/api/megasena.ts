@@ -27,6 +27,11 @@ export function formatBRL(value: number): string {
  * Format date from ISO to Brazilian format
  */
 export function formatDateBR(isoDate: string): string {
-  const date = new Date(isoDate);
-  return new Intl.DateTimeFormat("pt-BR").format(date);
+  const [year, month, day] = isoDate.split("-");
+
+  if (!year || !month || !day) {
+    return isoDate;
+  }
+
+  return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`;
 }

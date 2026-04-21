@@ -29,9 +29,15 @@ import {
 export function Statistics() {
   const { data: historicalData, isLoading, error } = useHistoricalData();
 
-  const stats = useMemo(() => {
-    if (!historicalData?.draws) return null;
+  const getRelativeWidth = (value: number, max: number) =>
+    max > 0 ? `${(value / max) * 100}%` : "0%";
 
+  const stats = useMemo(() => {
+    if (!historicalData?.draws?.length) return null;
+
+    const drawsByDate = [...historicalData.draws].sort((a, b) =>
+      a.data.localeCompare(b.data)
+    );
     const frequencies = calculateFrequencies(historicalData.draws);
     const hotNumbers = getHotNumbers(frequencies, 10);
     const coldNumbers = getColdNumbers(frequencies, 10);
@@ -68,8 +74,8 @@ export function Statistics() {
       maxWinners,
       totalDraws: historicalData.draws.length,
       dateRange: {
-        first: historicalData.draws[0]?.data,
-        last: historicalData.draws[historicalData.draws.length - 1]?.data,
+        first: drawsByDate[0]?.data,
+        last: drawsByDate[drawsByDate.length - 1]?.data,
       },
     };
   }, [historicalData]);
@@ -199,9 +205,10 @@ export function Statistics() {
                       <div
                         className="h-full bg-mega-green rounded-full transition-all"
                         style={{
-                          width: `${
-                            (num.count / stats.hotNumbers[0].count) * 100
-                          }%`,
+                          width: getRelativeWidth(
+                            num.count,
+                            stats.hotNumbers[0]?.count ?? 0
+                          ),
                         }}
                       />
                     </div>
@@ -230,9 +237,10 @@ export function Statistics() {
                       <div
                         className="h-full bg-slate-400 rounded-full transition-all"
                         style={{
-                          width: `${
-                            (num.count / stats.hotNumbers[0].count) * 100
-                          }%`,
+                          width: getRelativeWidth(
+                            num.count,
+                            stats.hotNumbers[0]?.count ?? 0
+                          ),
                         }}
                       />
                     </div>
@@ -265,9 +273,10 @@ export function Statistics() {
                       <div
                         className="h-full bg-amber-400 rounded-full transition-all"
                         style={{
-                          width: `${
-                            (num.gap / stats.overdueNumbers[0].gap) * 100
-                          }%`,
+                          width: getRelativeWidth(
+                            num.gap,
+                            stats.overdueNumbers[0]?.gap ?? 0
+                          ),
                         }}
                       />
                     </div>

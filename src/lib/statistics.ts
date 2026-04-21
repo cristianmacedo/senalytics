@@ -34,7 +34,7 @@ export function calculateFrequencies(draws: DrawData[]): NumberFrequency[] {
     ([number, { count, lastDrawn }]) => ({
       number,
       count,
-      percentage: (count / draws.length) * 100,
+      percentage: draws.length > 0 ? (count / draws.length) * 100 : 0,
       lastDrawn,
       gap: latestDraw - lastDrawn,
     })
@@ -127,7 +127,7 @@ export function calculateStatsSummary(draws: DrawData[]): StatsSummary {
 
   const frequencies = calculateFrequencies(draws);
   const sortedByDate = [...draws].sort(
-    (a, b) => new Date(a.data).getTime() - new Date(b.data).getTime()
+    (a, b) => a.data.localeCompare(b.data)
   );
 
   return {
@@ -152,6 +152,15 @@ export function calculateSumStats(draws: DrawData[]): {
   average: number;
   distribution: Record<number, number>;
 } {
+  if (draws.length === 0) {
+    return {
+      min: 0,
+      max: 0,
+      average: 0,
+      distribution: {},
+    };
+  }
+
   const sums = draws.map((d) => d.dezenas.reduce((a, b) => a + b, 0));
 
   const distribution: Record<number, number> = {};
@@ -185,7 +194,7 @@ export function calculateOddEvenStats(draws: DrawData[]): {
 
   const percentages: Record<string, number> = {};
   for (const [key, count] of Object.entries(distribution)) {
-    percentages[key] = (count / draws.length) * 100;
+    percentages[key] = draws.length > 0 ? (count / draws.length) * 100 : 0;
   }
 
   return { distribution, percentages };
@@ -218,7 +227,7 @@ export function calculateConsecutiveStats(draws: DrawData[]): {
   return {
     withConsecutive,
     withoutConsecutive: draws.length - withConsecutive,
-    percentageWith: (withConsecutive / draws.length) * 100,
+    percentageWith: draws.length > 0 ? (withConsecutive / draws.length) * 100 : 0,
   };
 }
 

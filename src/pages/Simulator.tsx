@@ -37,6 +37,7 @@ export function Simulator() {
     running: false,
     startTime: 0,
   });
+  const huntAttemptsRef = useRef(0);
 
   // Pre-build Set of historical draws for O(1) lookup
   const historicalSet = useMemo(() => {
@@ -56,6 +57,7 @@ export function Simulator() {
     setIsHunting(true);
     setHuntResult(null);
     setHuntAttempts(0);
+    huntAttemptsRef.current = 0;
     setHuntCurrentNumbers([]); // Reset numbers
     huntRef.current = { running: true, startTime: performance.now() };
 
@@ -79,7 +81,7 @@ export function Simulator() {
           setIsHunting(false);
           setHuntCurrentNumbers(numbers);
           setHuntResult({
-            attempts: huntAttempts + localAttempts,
+            attempts: huntAttemptsRef.current + localAttempts,
             numbers,
             matchedDraw,
             timeMs,
@@ -88,14 +90,15 @@ export function Simulator() {
         }
       }
 
-      setHuntAttempts((prev) => prev + localAttempts);
+      huntAttemptsRef.current += localAttempts;
+      setHuntAttempts(huntAttemptsRef.current);
       setHuntCurrentNumbers(generateRandomDraw()); // Show random numbers for visual effect
 
       requestAnimationFrame(tick);
     };
 
     requestAnimationFrame(tick);
-  }, [historicalData, historicalSet, huntAttempts]);
+  }, [historicalData, historicalSet]);
 
   const stopHunt = useCallback(() => {
     huntRef.current.running = false;

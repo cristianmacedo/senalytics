@@ -86,53 +86,58 @@ export function History() {
         {/* Results */}
         <div className="space-y-4">
           {paginatedDraws.map((draw) => (
-            <Card
-              key={draw.numero}
-              className="cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() =>
-                setSelectedDraw(
-                  selectedDraw === draw.numero ? null : draw.numero
-                )
-              }
-            >
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="text-center">
-                    <p className="text-xs text-slate-500 uppercase">Concurso</p>
-                    <p className="text-2xl font-bold text-caixa-blue">
-                      {draw.numero}
-                    </p>
-                  </div>
-                  <div className="h-12 w-px bg-slate-200" />
-                  <div>
-                    <p className="text-sm text-slate-500">
-                      {formatDateBR(draw.data)}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      {draw.acumulado && (
-                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">
-                          Acumulou
-                        </span>
-                      )}
-                      {draw.ganhadores[0] > 0 && (
-                        <span className="text-xs bg-mega-green/10 text-mega-green px-2 py-0.5 rounded-full font-medium">
-                          {draw.ganhadores[0]} ganhador
-                          {draw.ganhadores[0] > 1 ? "es" : ""}
-                        </span>
-                      )}
+            <Card key={draw.numero} className="hover:shadow-md transition-shadow">
+              <button
+                type="button"
+                className="w-full text-left"
+                aria-expanded={selectedDraw === draw.numero}
+                onClick={() =>
+                  setSelectedDraw(
+                    selectedDraw === draw.numero ? null : draw.numero
+                  )
+                }
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="text-center">
+                      <p className="text-xs text-slate-500 uppercase">
+                        Concurso
+                      </p>
+                      <p className="text-2xl font-bold text-caixa-blue">
+                        {draw.numero}
+                      </p>
+                    </div>
+                    <div className="h-12 w-px bg-slate-200" />
+                    <div>
+                      <p className="text-sm text-slate-500">
+                        {formatDateBR(draw.data)}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        {draw.acumulado && (
+                          <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">
+                            Acumulou
+                          </span>
+                        )}
+                        {draw.ganhadores[0] > 0 && (
+                          <span className="text-xs bg-mega-green/10 text-mega-green px-2 py-0.5 rounded-full font-medium">
+                            {draw.ganhadores[0]} ganhador
+                            {draw.ganhadores[0] > 1 ? "es" : ""}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <DrawResult numbers={draw.dezenas} size="sm" />
+                  <DrawResult numbers={draw.dezenas} size="sm" />
 
-                <div className="text-right">
-                  <p className="text-xs text-slate-500">Prêmio Sena</p>
-                  <p className="font-bold text-mega-green">
-                    {formatBRL(draw.premios[0])}
-                  </p>
+                  <div className="text-right">
+                    <p className="text-xs text-slate-500">Prêmio Sena</p>
+                    <p className="font-bold text-mega-green">
+                      {formatBRL(draw.premios[0])}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </button>
 
               {/* Expanded Details */}
               {selectedDraw === draw.numero && selectedDrawData && (

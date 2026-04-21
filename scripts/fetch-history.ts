@@ -9,6 +9,7 @@
 
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
+import type { DrawData, HistoricalData } from "../src/types/megasena";
 
 const API_BASE =
   "https://servicebus2.caixa.gov.br/portaldeloterias/api/megasena";
@@ -45,25 +46,6 @@ interface MegaSenaResult {
     ganhadores: number;
     uf: string;
   }>;
-}
-
-interface DrawData {
-  numero: number;
-  data: string;
-  dezenas: number[];
-  acumulado: boolean;
-  especial: number;
-  ganhadores: [number, number, number];
-  premios: [number, number, number];
-  arrecadacao: number;
-  acumuladoProximo: number;
-  ganhadoresPorUF?: Record<string, number>;
-}
-
-interface HistoricalData {
-  updatedAt: string;
-  totalDraws: number;
-  draws: DrawData[];
 }
 
 function toDrawData(result: MegaSenaResult): DrawData {
