@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-06-24T03:08:37.146Z",
-  "totalDraws": 3022,
+  "updatedAt": "2026-06-26T03:09:07.027Z",
+  "totalDraws": 3023,
   "draws": [
     {
       "numero": 1,
@@ -80598,6 +80598,32 @@
       "ganhadoresPorUF": {
         "AM": 1
       }
+    },
+    {
+      "numero": 3023,
+      "data": "2026-06-25",
+      "dezenas": [
+        22,
+        25,
+        30,
+        31,
+        39,
+        60
+      ],
+      "acumulado": true,
+      "especial": 1,
+      "ganhadores": [
+        0,
+        7,
+        807
+      ],
+      "premios": [
+        0,
+        117144.19,
+        1674.92
+      ],
+      "arrecadacao": 20577966,
+      "acumuladoProximo": 2523105.57
     }
   ]
 }
