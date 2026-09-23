@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-09-18T07:00:03.030Z",
-  "totalDraws": 3059,
+  "updatedAt": "2026-09-23T07:17:06.533Z",
+  "totalDraws": 3061,
   "draws": [
     {
       "numero": 1,
@@ -81572,6 +81572,58 @@
       "ganhadoresPorUF": {
         "SP": 1
       }
+    },
+    {
+      "numero": 3060,
+      "data": "2026-09-20",
+      "dezenas": [
+        6,
+        15,
+        23,
+        36,
+        37,
+        38
+      ],
+      "acumulado": true,
+      "especial": 1,
+      "ganhadores": [
+        0,
+        54,
+        3075
+      ],
+      "premios": [
+        0,
+        32111.66,
+        929.52
+      ],
+      "arrecadacao": 43515114,
+      "acumuladoProximo": 26716895.88
+    },
+    {
+      "numero": 3061,
+      "data": "2026-09-22",
+      "dezenas": [
+        24,
+        25,
+        28,
+        37,
+        47,
+        55
+      ],
+      "acumulado": true,
+      "especial": 1,
+      "ganhadores": [
+        0,
+        39,
+        2148
+      ],
+      "premios": [
+        0,
+        42199.06,
+        1262.94
+      ],
+      "arrecadacao": 41300088,
+      "acumuladoProximo": 31780782.27
     }
   ]
 }
