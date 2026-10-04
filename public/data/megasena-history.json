@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-09-25T07:05:12.185Z",
-  "totalDraws": 3062,
+  "updatedAt": "2026-10-04T07:43:28.926Z",
+  "totalDraws": 3066,
   "draws": [
     {
       "numero": 1,
@@ -81650,6 +81650,110 @@
       ],
       "arrecadacao": 42594912,
       "acumuladoProximo": 37003429.61
+    },
+    {
+      "numero": 3063,
+      "data": "2026-09-27",
+      "dezenas": [
+        5,
+        35,
+        36,
+        41,
+        43,
+        48
+      ],
+      "acumulado": true,
+      "especial": 1,
+      "ganhadores": [
+        0,
+        29,
+        2642
+      ],
+      "premios": [
+        0,
+        73111.35,
+        1322.81
+      ],
+      "arrecadacao": 53206716,
+      "acumuladoProximo": 43527211.47
+    },
+    {
+      "numero": 3064,
+      "data": "2026-09-29",
+      "dezenas": [
+        4,
+        10,
+        20,
+        25,
+        27,
+        48
+      ],
+      "acumulado": true,
+      "especial": 1,
+      "ganhadores": [
+        0,
+        82,
+        4467
+      ],
+      "premios": [
+        0,
+        24039.44,
+        727.39
+      ],
+      "arrecadacao": 49467708,
+      "acumuladoProximo": 65108665.02
+    },
+    {
+      "numero": 3065,
+      "data": "2026-10-01",
+      "dezenas": [
+        8,
+        10,
+        30,
+        38,
+        50,
+        53
+      ],
+      "acumulado": true,
+      "especial": 1,
+      "ganhadores": [
+        0,
+        47,
+        3642
+      ],
+      "premios": [
+        0,
+        49503.22,
+        1053.03
+      ],
+      "arrecadacao": 58386840,
+      "acumuladoProximo": 72267592.25
+    },
+    {
+      "numero": 3066,
+      "data": "2026-10-03",
+      "dezenas": [
+        4,
+        6,
+        9,
+        13,
+        28,
+        48
+      ],
+      "acumulado": true,
+      "especial": 1,
+      "ganhadores": [
+        0,
+        118,
+        8062
+      ],
+      "premios": [
+        0,
+        25224.37,
+        608.56
+      ],
+      "arrecadacao": 74694060,
+      "acumuladoProximo": 81425980.33
     }
   ]
 }
