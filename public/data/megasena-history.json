@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-10-30T08:00:23.522Z",
-  "totalDraws": 3078,
+  "updatedAt": "2026-11-01T08:38:50.804Z",
+  "totalDraws": 3079,
   "draws": [
     {
       "numero": 1,
@@ -82066,6 +82066,32 @@
       ],
       "arrecadacao": 21005592,
       "acumuladoProximo": 2575537.65
+    },
+    {
+      "numero": 3079,
+      "data": "2026-10-30",
+      "dezenas": [
+        5,
+        9,
+        16,
+        40,
+        41,
+        59
+      ],
+      "acumulado": true,
+      "especial": 1,
+      "ganhadores": [
+        0,
+        12,
+        1110
+      ],
+      "premios": [
+        0,
+        50706.28,
+        783.1
+      ],
+      "arrecadacao": 19850436,
+      "acumuladoProximo": 36190802.3
     }
   ]
 }
